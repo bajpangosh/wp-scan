@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Wizard Shortcut
+ */
+
+// Inject wizard flag so Argv parser sees it
+$_SERVER['argv'][] = '--wizard';
+
+// Load the main application
+require __DIR__ . '/src/index.php';

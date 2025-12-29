@@ -36,6 +36,21 @@ configurations (ex. using `--lite|-l` flag can help to find less false positivit
 results from such activities. You are solely responsible for adequate protection and backup of the data before executing
 the scanner.*
 
+## 🚀 Quick Start
+
+Get up and running in seconds:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/bajpangosh/wp-scan.git
+
+# 2. Enter the directory
+cd wp-scan
+
+# 3. Run the interactive setup wizard
+./wizard
+```
+
 ### How to contribute
 
 Have an idea? Found a bug? Please raise to [ISSUES](https://github.com/marcocesarato/PHP-Antimalware-Scanner/issues)
@@ -210,6 +225,12 @@ The scanner permit to have some predefined modes:
 
 ```
 php amwscan ./mywebsite/http/ -l -s --only-exploits
+# Launch the setup wizard (simplified)
+./wizard
+# or using composer
+composer wizard
+# or using the CLI flag
+php amwscan --wizard
 php amwscan -s --max-filesize="5MB"
 php amwscan -s -logs="/user/marco/scanner.log"
 php amwscan --lite --only-exploits

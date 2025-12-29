@@ -13,6 +13,7 @@ namespace AMWScan;
 
 use AMWScan\Console\Argv;
 use AMWScan\Console\CLI;
+use AMWScan\Console\Wizard;
 use AMWScan\Templates\Report;
 
 /**
@@ -412,6 +413,8 @@ class Scanner
         self::$argv->addArgument('path', ['var_args' => true, 'default' => Path::getCurrentDir(), 'help' => 'Define the path of the file or directory to scan']);
 
         // Flags
+        // Flags
+        self::$argv->addFlag('wizard', ['alias' => '-w', 'default' => false, 'help' => 'Run interactive setup wizard']);
         self::$argv->addFlag('lite', ['alias' => '-l', 'default' => false, 'help' => 'Running on lite mode help to have less false positive on WordPress and others platforms enabling exploits mode and removing some common exploit pattern']);
         self::$argv->addFlag('help', ['alias' => ['-h', '-?'], 'default' => false, 'help' => 'Check only functions and not the exploits']);
         self::$argv->addFlag('log', ['default' => self::$pathLogs, 'has_value' => true, 'value_name' => 'path', 'help' => 'Write a log file on the specified file path']);
@@ -458,6 +461,12 @@ class Scanner
         // self::$argv->addFlag('deobfuscate', ['default' => false, 'help' => 'Deobfuscate directory']);
 
         self::$argv->parse($args);
+
+        // Wizard
+        if (isset(self::$argv['wizard']) && self::$argv['wizard']) {
+            $wizard = new Wizard();
+            $wizard->run();
+        }
 
         // Version
         if (isset(self::$argv['version']) && self::$argv['version']) {
@@ -852,8 +861,10 @@ class Scanner
                     }
                 }
 
-                if (!$ignore
-                    && $cur->isDir()) {
+                if (
+                    !$ignore
+                    && $cur->isDir()
+                ) {
                     if (self::isVerifierEnabled()) {
                         Modules::init($cur->getPath());
                     }
@@ -1033,13 +1044,7 @@ class Scanner
             foreach ($functions as $funcRaw) {
                 $lastMatch = null;
                 $func = preg_quote(trim($funcRaw), '/');
-                $checkFunction = function (
-                    $match,
-                    $pattern,
-                    $level = CodeMatch::WARNING,
-                    $descriptionPrefix = '',
-                    $functionType = ''
-                ) use ($contentRaw, $funcRaw, &$patternFound) {
+                $checkFunction = function ($match, $pattern, $level = CodeMatch::WARNING, $descriptionPrefix = '', $functionType = '') use ($contentRaw, $funcRaw, &$patternFound) {
                     $type = 'function';
                     $suffix = '';
                     if (!empty($functionType)) {
@@ -1131,8 +1136,10 @@ class Scanner
             }
         }
 
-        if (self::shouldScanExploits()
-            && self::isInfectedFavicon($info)) {
+        if (
+            self::shouldScanExploits()
+            && self::isInfectedFavicon($info)
+        ) {
             $type = 'exploit';
             $key = 'infected_icon';
             $description = 'LFI (Local File Inclusion), through an infected file with icon, allow remote attackers to inject and execute arbitrary commands or code on the target machine';
@@ -1154,7 +1161,8 @@ class Scanner
             foreach ($patternFound as $value) {
                 $match1 = preg_replace('/\s+/', '', $item['match']);
                 $match2 = preg_replace('/\s+/', '', $value['match']);
-                if ($match1 === $match2
+                if (
+                    $match1 === $match2
                     && $item['type'] === $value['type']
                     && $item['key'] === $value['key']
                     && empty($item['line'])
@@ -1188,8 +1196,10 @@ class Scanner
         }
         $filePath = self::getPathDeobfuscate() . DIRECTORY_SEPARATOR . str_replace($scanPath, '', realpath($filePath));
         $filePath = Path::get($filePath);
-        if (!is_dir(dirname($filePath))
-            && (!mkdir($concurrentDirectory = dirname($filePath), 0755, true) && !is_dir($concurrentDirectory))) {
+        if (
+            !is_dir(dirname($filePath))
+            && (!mkdir($concurrentDirectory = dirname($filePath), 0755, true) && !is_dir($concurrentDirectory))
+        ) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
         }
 
@@ -1227,13 +1237,15 @@ class Scanner
 
             $isFavicon = self::isInfectedFavicon($info);
 
-            if ((
-                (self::isScanAll() || in_array($fileExtension, self::$extensions, true))
+            if (
+                (
+                    (self::isScanAll() || in_array($fileExtension, self::$extensions, true))
                     && (self::$maxFilesize < 1 || $fileSize <= self::$maxFilesize)
                     && (!file_exists(self::$pathQuarantine) || strpos(realpath($filePath), realpath(self::$pathQuarantine)) === false)
-                /* && (strpos($fileName, '-') === FALSE) */
-            )
-                || $isFavicon) {
+                    /* && (strpos($fileName, '-') === FALSE) */
+                )
+                || $isFavicon
+            ) {
                 $patternFound = $this->scanFile($info);
 
                 // Check whitelist
@@ -1244,10 +1256,12 @@ class Scanner
                         $exploit = $pattern['key'];
                         $match = $pattern['match'];
 
-                        if (strpos($filePath, $item['file']) !== false
+                        if (
+                            strpos($filePath, $item['file']) !== false
                             && $match === $item['match']
                             && $exploit === $item['exploit']
-                            && (self::isOnlyPathWhitelistMode() || (!self::isOnlyPathWhitelistMode() && $lineNumber === $item['line']))) {
+                            && (self::isOnlyPathWhitelistMode() || (!self::isOnlyPathWhitelistMode() && $lineNumber === $item['line']))
+                        ) {
                             $inWhitelist++;
                         }
                     }

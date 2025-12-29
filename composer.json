@@ -41,6 +41,7 @@
     ],
     "scripts": {
         "start": "php ./src/index.php",
+        "wizard": "php ./wizard",
         "dist": "php ./dist/scanner",
         "changelog": "conventional-changelog",
         "release": "conventional-changelog --commit",
