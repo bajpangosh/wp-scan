@@ -1,19 +1,31 @@
+# OS
+.DS_Store
+
+# Logs
 *.log
 *.logs
+
+# Reports and generated files
 dist/*.html
+scanner-report*
 scanner-whitelist.json
+/scanner-quarantine/
+/scanner-backups/
+/deobfuscated/
 
-vendor/**
+# Dependencies
+vendor/
+composer.phar
+
+# IDE
 .idea
+.vscode
 
+# Code Quality and Tests
 .php-cs-fixer.cache
 cghooks.lock
-
-# Test artifacts
 .phpunit.result.cache
 coverage/
 phpunit.xml.bak
 tests/Fixtures/tmp/
 tests/Fixtures/reports/
-/scanner-quarantine/
-/scanner-backups/
