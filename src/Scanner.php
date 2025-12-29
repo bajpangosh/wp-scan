@@ -1222,6 +1222,9 @@ class Scanner
 
         // Scanning
         foreach ($iterator as $info) {
+            if ($this->interrupt) {
+                break;
+            }
             CLI::progress(self::$report['scanned'], $filesCount);
 
             $filePath = $info->getPathname();
@@ -1330,6 +1333,7 @@ class Scanner
                                 7 => 'Add to whitelist',
                                 8 => 'Show source',
                                 '-' => 'Ignore',
+                                'q' => 'Quit',
                             ]);
                             if (empty(trim($confirmation))) {
                                 $confirmation = '0';
@@ -1483,6 +1487,11 @@ class Scanner
                                 CLI::writeLine("File '$filePath' skipped!", 2, 'green');
                                 self::$report['ignored'][] = $filePath;
                                 self::$report['infectedFound'][$filePath] = $patternFound;
+                                $inLoop = false;
+                                break;
+                                // Quit
+                            case in_array($confirmation, ['q', 'quit', 'exit']):
+                                $this->interrupt = true;
                                 $inLoop = false;
                                 break;
                             default:
